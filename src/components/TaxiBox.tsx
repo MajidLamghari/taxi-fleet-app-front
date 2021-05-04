@@ -5,6 +5,8 @@ import axios from 'axios'
 
 const RideBox = () => {
     const [drivesList, setDrivesList] = useState<any>([]);
+    const [apiCallFailed, setApiCallFailed] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const handleClick = (id: number) => {
         let ride: any = (drivesList || []).find((r: any) => r.id === id);
@@ -18,14 +20,17 @@ const RideBox = () => {
         })
         setDrivesList(newRides);
     }
-
     useEffect(() => {
         axios.get(process.env.REACT_APP_API_HOST + 'rides').then((res) => {
             setDrivesList(res.data.rides);
+            setIsLoading(false);
+        }).catch(error => {
+            setApiCallFailed(true);
+            setIsLoading(false);
         })
     }, []);
-
-    return (
+    if(apiCallFailed) return (isLoading ? <p>loading ...</p> : <p>Error while calling API, please retry later</p>)
+    return (isLoading ? <p>loading...</p> :
         <div>
             {
                 drivesList.length > 0 &&
